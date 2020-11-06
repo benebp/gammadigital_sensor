@@ -1,0 +1,24 @@
+{
+  "name": "gammadigital_sensor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benebp/gammadigital_sensor.git"
+  },
+  "author": "benebp",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/benebp/gammadigital_sensor/issues"
+  },
+  "homepage": "https://github.com/benebp/gammadigital_sensor#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongodb": "^3.6.2",
+    "dotenv": "^8.2.0"
+  }
+}
