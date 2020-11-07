@@ -20,27 +20,29 @@ getDb.then(sensorCollection => {
       .catch(error => console.error(error));
   });
   app.get('/measures/:time', (req, res) => {
-    sensorCollection.find({ 'time': req.params.time }).toArray()
-      .then(result => {
-        if (result.length === 0) {
-          res.send({ error: 'No sensor data found by given time' });
-        } else {
-          res.send(result[0].value);
-        };
-      })
-      .catch(error => console.error(error));
+    if (!checks.checkTime(req.params.time)) {
+      res.send({ error: 'Time invalid' });
+    } else {
+      sensorCollection.find({ 'time': req.params.time }).toArray()
+        .then(result => {
+          if (result.length === 0) {
+            res.send({ error: 'No sensor data found by given time' });
+          } else {
+            res.send(result[0].value);
+          };
+        })
+        .catch(error => console.error(error));
+    };
   });
   app.post('/measures/:time/:value', (req, res) => {
     if (!checks.checkTime(req.params.time)) {
       res.send({ error: 'Time invalid' });
-    } else if (!checks.checkMeasure(req.params.value)) {
+    } else if (checks.checkMeasure(req.params.value)) {
       res.send({ error: 'Value invalid' });
     } else {
-      req.params.time = JSON.stringify(req.params.time);
-      req.params.value = JSON.stringify(req.params.value);
       sensorCollection.insertOne({ 'time' : req.params.time, 'value' : req.params.value });
       res.send({ status: 'Created' });
-    }
+    };
   });
 })
   .catch(error => console.error(error));

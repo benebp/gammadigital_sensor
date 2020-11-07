@@ -1,7 +1,7 @@
 'use strict';
 
 const checkTime = (time) => {
-  return time > -1 && Number.isInteger(time) ? true : false
+  return parseInt(time) > -1 && Number.isInteger(parseInt(time)) ? true : false
 };
 
 const checkMeasure = (measure) => {
