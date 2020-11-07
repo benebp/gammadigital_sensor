@@ -4,53 +4,49 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 const PORT = 3000;
-let getDb = require('./database.js');
+const getDb = require('./database.js');
+const checks = require('./function');
 
 getDb.then(sensorCollection => {
-  app.get('/records', (req, res) => {
+  app.get('/measures', (req, res) => {
     sensorCollection.find().toArray()
       .then(result => {
         if (result.length === 0) {
-          res.send({ status: 'No saved records' });
+          res.send({ status: 'No saved sensor data' });
         } else {
           res.send(result);
         };
       })
       .catch(error => console.error(error));
   });
-  app.get('/records/:id', (req, res) => {
-    sensorCollection.find({ 'id': req.params.id }).toArray()
+  app.get('/measures/:time', (req, res) => {
+    sensorCollection.find({ 'time': req.params.time }).toArray()
       .then(result => {
         if (result.length === 0) {
-          res.send({ error: 'No record found by given ID' });
+          res.send({ error: 'No sensor data found by given time' });
         } else {
-          res.send(result[0]);
+          res.send(result[0].value);
         };
       })
       .catch(error => console.error(error));
   });
-  app.post('/records', (req, res) => {
-    if (!req.body.id) {
-      res.send({ error: 'No ID given' });
+  app.post('/measures/:time/:value', (req, res) => {
+    if (!checks.checkTime(req.params.time)) {
+      res.send({ error: 'Time invalid' });
+    } else if (!checks.checkMeasure(req.params.value)) {
+      res.send({ error: 'Value invalid' });
     } else {
-      sensorCollection.find({ 'id': req.body.id }).toArray()
-        .then(result => {
-          if (result.length !== 0) {
-            res.send({ error: 'Given ID already exists' });
-          } else {
-            req.body.id = JSON.stringify(req.body.id);
-            sensorCollection.insertOne(req.body);
-            res.send({ status: 'Created' });
-          };
-        })
-        .catch(error => console.error(error));
+      req.params.time = JSON.stringify(req.params.time);
+      req.params.value = JSON.stringify(req.params.value);
+      sensorCollection.insertOne({ 'time' : req.params.time, 'value' : req.params.value });
+      res.send({ status: 'Created' });
     }
   });
 })
   .catch(error => console.error(error));
 
 app.get('/', (req, res) => {
-  res.redirect('/sensor');
+  res.redirect('/measures');
 });
 
 app.listen(PORT, () => {
